@@ -3,103 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vòng Quay May Mắn</title>
+    <title>Vòng Quay May Mắn Pro</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; text-align: center; background-color: #f4f4f9; padding: 20px; }
-        .container { max-width: 500px; margin: auto; background: white; padding: 30px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #d32f2f; }
-        .prize-display { font-size: 48px; font-weight: bold; margin: 30px 0; min-height: 60px; color: #1976d2; border: 2px dashed #ccc; line-height: 60px; border-radius: 10px; }
-        button { padding: 15px 30px; font-size: 18px; cursor: pointer; background-color: #4caf50; color: white; border: none; border-radius: 5px; transition: 0.3s; }
-        button:disabled { background-color: #ccc; cursor: not-allowed; }
-        .inventory { margin-top: 20px; text-align: left; font-size: 14px; color: #666; }
-        .history { margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; text-align: left; max-height: 150px; overflow-y: auto; }
+        :root {
+            --primary-color: #e63946;
+            --secondary-color: #457b9d;
+            --success-color: #2a9d8f;
+        }
+        body { 
+            font-family: 'Arial', sans-serif; 
+            text-align: center; 
+            background: linear-gradient(135deg, #1d3557 0%, #457b9d 100%); 
+            color: #fff;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container { 
+            width: 90%;
+            max-width: 800px; 
+            background: rgba(255, 255, 255, 0.95); 
+            padding: 50px; 
+            border-radius: 30px; 
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+            color: #333;
+        }
+        h1 { font-size: 3rem; color: var(--primary-color); margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* Hiển thị số trúng thưởng - TO VÀ RÕ */
+        .prize-display { 
+            font-size: 8rem; 
+            font-weight: 900; 
+            margin: 40px 0; 
+            height: 200px; 
+            line-height: 200px;
+            color: var(--secondary-color); 
+            background: #f1f1f1;
+            border: 8px solid var(--secondary-color);
+            border-radius: 20px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+        }
+
+        /* Nút bấm khổng lồ */
+        button { 
+            padding: 25px 60px; 
+            font-size: 2.5rem; 
+            font-weight: bold;
+            cursor: pointer; 
+            background-color: var(--success-color); 
+            color: white; 
+            border: none; 
+            border-radius: 50px; 
+            transition: all 0.2s;
+            box-shadow: 0 10px 0 #1b665d;
+        }
+        button:hover { transform: translateY(-3px); box-shadow: 0 13px 0 #1b665d; }
+        button:active { transform: translateY(5px); box-shadow: 0 2px 0 #1b665d; }
+        button:disabled { background-color: #bdc3c7; box-shadow: 0 5px 0 #7f8c8d; cursor: not-allowed; }
+
+        .info-panel {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+            font-size: 1.5rem;
+            border-top: 2px solid #eee;
+            padding-top: 20px;
+        }
+        .count-item b { color: var(--primary-color); font-size: 2rem; }
+        
+        .history { 
+            margin-top: 30px; 
+            text-align: left; 
+            max-height: 200px; 
+            overflow-y: auto; 
+            background: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🎉 Quay Số May Mắn</h1>
+    <h1>🎁 QUAY SỐ THƯỞNG</h1>
     
-    <div class="prize-display" id="result">?</div>
+    <div class="prize-display" id="result">---</div>
     
-    <button id="spinBtn" onclick="spin()">QUAY SỐ</button>
+    <button id="spinBtn" onclick="spin()">BẮT ĐẦU QUAY</button>
 
-    <div class="inventory">
-        <strong>Số lượng còn lại:</strong>
-        <ul>
-            <li>Giải 50k: <span id="count50">5</span></li>
-            <li>Giải 20k: <span id="count20">10</span></li>
-            <li>Giải 10k: Không giới hạn</li>
-        </ul>
+    <div class="info-panel">
+        <div class="count-item">Giải 50k: <b id="count50">5</b></div>
+        <div class="count-item">Giải 20k: <b id="count20">10</b></div>
     </div>
 
     <div class="history" id="history">
-        <strong>Lịch sử trúng giải:</strong>
+        <strong>Lịch sử:</strong>
     </div>
 </div>
 
 <script>
-    // CẤU HÌNH SỐ LƯỢNG GIẢI THƯỞNG TẠI ĐÂY
     let inventory = {
-        "50.000đ": 5,
-        "20.000đ": 10,
-        "10.000đ": Infinity
+        "50.000": 5,
+        "20.000": 10,
+        "10.000": Infinity
     };
 
     function spin() {
         const btn = document.getElementById('spinBtn');
         const resultDiv = document.getElementById('result');
         btn.disabled = true;
-        resultDiv.innerText = "Đang quay...";
-
-        // Hiệu ứng chạy số giả lập
+        
+        // 1. TỐC ĐỘ NHẢY SỐ: Cực nhanh (20ms)
+        // 2. THỜI GIAN QUAY: Tăng lên (ví dụ quay 150 lần * 20ms = 3 giây quay + dừng)
         let counter = 0;
+        const totalSpins = 150; 
+        
         const interval = setInterval(() => {
-            const tempPrizes = ["10.000đ", "20.000đ", "50.000đ"];
+            const tempPrizes = ["10k", "20k", "50k", "99k", "00k"]; // Hiệu ứng nhảy số giả
             resultDiv.innerText = tempPrizes[Math.floor(Math.random() * tempPrizes.length)];
+            
             counter++;
-            if (counter > 20) {
+            if (counter > totalSpins) {
                 clearInterval(interval);
                 finalizeResult();
             }
-        }, 50);
+        }, 20); // 20ms là tốc độ nhảy số rất nhanh
     }
 
     function finalizeResult() {
         const btn = document.getElementById('spinBtn');
         const resultDiv = document.getElementById('result');
         
-        // Logic xác suất và kiểm tra kho
         let pool = [];
+        if (inventory["50.000"] > 0) pool.push("50.000");
+        if (inventory["20.000"] > 0) pool.push("20.000");
         
-        // Thêm các giải vào "túi" dựa trên số lượng còn lại
-        if (inventory["50.000đ"] > 0) pool.push("50.000đ");
-        if (inventory["20.000đ"] > 0) pool.push("20.000đ");
-        
-        // Luôn có giải 10k và chiếm tỉ lệ cao hơn nếu muốn (ví dụ cho 5 phần 10k vào túi)
-        for(let i=0; i<5; i++) pool.push("10.000đ");
+        // Tỉ lệ trúng 10k cao (thêm nhiều phần tử 10k vào mảng chọn)
+        for(let i=0; i<10; i++) pool.push("10.000");
 
-        // Chọn ngẫu nhiên từ túi
         const finalPrize = pool[Math.floor(Math.random() * pool.length)];
 
-        // Cập nhật kho
         if (inventory[finalPrize] !== Infinity) {
             inventory[finalPrize]--;
         }
 
-        // Hiển thị kết quả
-        resultDiv.innerText = finalPrize;
+        // Hiển thị kết quả cuối cùng với đơn vị Đ
+        resultDiv.innerText = finalPrize + "đ";
+        resultDiv.style.color = "#d32f2f"; // Đổi màu khi trúng
+
         updateUI(finalPrize);
         btn.disabled = false;
     }
 
     function updateUI(prize) {
-        document.getElementById('count50').innerText = inventory["50.000đ"];
-        document.getElementById('count20').innerText = inventory["20.000đ"];
+        document.getElementById('count50').innerText = inventory["50.000"];
+        document.getElementById('count20').innerText = inventory["20.000"];
         
         const historyDiv = document.getElementById('history');
         const newItem = document.createElement('div');
-        newItem.innerText = `- Đã trúng: ${prize} (${new Date().toLocaleTimeString()})`;
+        newItem.innerHTML = `⭐ Giải <b>${prize}đ</b> - <i>${new Date().toLocaleTimeString()}</i>`;
         historyDiv.prepend(newItem);
     }
 </script>
