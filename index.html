@@ -35,7 +35,7 @@
         .info-panel { display: flex; justify-content: center; gap: 50px; margin-top: 30px; font-size: 1.8rem; font-weight: bold; }
         .count-item span { color: var(--primary); font-size: 2.2rem; }
         
-        #mode-indicator { position: fixed; top: 10px; right: 10px; font-size: 10px; color: rgba(255,255,255,0.1); }
+        #mode-indicator { position: fixed; top: 10px; right: 10px; font-size: 10px; color: rgba(255,255,255,0.05); }
     </style>
 </head>
 <body>
@@ -57,18 +57,23 @@
 <script>
     let inventory = { "50.000": 5, "20.000": 10, "10.000": Infinity };
     let isSpinning = false;
-    let cheatMode = false; // Mặc định là quay ngẫu nhiên
+    let cheatMode = false; 
 
-    // 1. Xử lý Phím tắt
+    // Xử lý Phím tắt
     window.addEventListener('keydown', (e) => {
         if (e.code === "Space" && !isSpinning) spin();
-        if (e.key === "5") { cheatMode = true; document.getElementById('mode-indicator').innerText = "Target: 50K"; }
-        if (e.key.toLowerCase() === "c") { cheatMode = false; document.getElementById('mode-indicator').innerText = "Normal"; }
+        if (e.key === "5") { 
+            cheatMode = true; 
+            document.getElementById('mode-indicator').innerText = "Target: 50K";
+        }
+        if (e.key.toLowerCase() === "c") { 
+            cheatMode = false; 
+            document.getElementById('mode-indicator').innerText = "Normal"; 
+        }
     });
 
     function spin() {
         if (isSpinning) return;
-        
         const btn = document.getElementById('spinBtn');
         const resultDiv = document.getElementById('result');
         const tick = document.getElementById('tickSound');
@@ -78,13 +83,11 @@
         resultDiv.style.color = "#457b9d";
 
         let counter = 0;
-        let totalSpins = 120; // Khoảng 3-4 giây quay
+        let totalSpins = 120; 
 
         const interval = setInterval(() => {
-            const temp = ["10k", "20k", "50k", "88k", "00k"];
+            const temp = ["10k", "20k", "50k", "99k", "00k"];
             resultDiv.innerText = temp[Math.floor(Math.random() * temp.length)];
-            
-            // Âm thanh mỗi lần nhảy số (giảm âm lượng để không chói tai)
             tick.volume = 0.2;
             tick.currentTime = 0;
             tick.play();
@@ -104,29 +107,28 @@
         
         let finalPrize = "";
 
-        // 2. Logic Điều hướng (Cheat)
+        // Logic ưu tiên CheatMode
         if (cheatMode && inventory["50.000"] > 0) {
             finalPrize = "50.000";
+            // TỰ ĐỘNG RESET SAU KHI DÙNG
+            cheatMode = false; 
+            document.getElementById('mode-indicator').innerText = "Normal";
         } else {
             let pool = [];
             if (inventory["50.000"] > 0) pool.push("50.000");
             if (inventory["20.000"] > 0) pool.push("20.000");
-            for(let i=0; i<15; i++) pool.push("10.000"); // Tỉ lệ 10k cao nhất
+            for(let i=0; i<15; i++) pool.push("10.000"); 
             finalPrize = pool[Math.floor(Math.random() * pool.length)];
         }
 
         if (inventory[finalPrize] !== Infinity) inventory[finalPrize]--;
 
-        // 3. Hiển thị kết quả & Hiệu ứng
         resultDiv.innerText = finalPrize + "đ";
         resultDiv.style.color = "#e63946";
-        
-        // Âm thanh thắng giải
         winSound.play();
 
-        // 4. Pháo hoa (Confetti)
+        // Hiệu ứng pháo hoa
         if (finalPrize === "50.000") {
-            // Pháo hoa to cho giải 50k
             var duration = 3 * 1000;
             var end = Date.now() + duration;
             (function frame() {
@@ -135,7 +137,6 @@
                 if (Date.now() < end) requestAnimationFrame(frame);
             }());
         } else {
-            // Pháo hoa nhẹ cho giải khác
             confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
         }
 
